@@ -1,12 +1,33 @@
 import express from 'express';
 import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
-import streamifier from 'streamifier';
+import path from 'path';
+import fs from 'fs';
 import { isAdmin, isAuth } from '../utils.js';
 
-const upload = multer();
-
 const uploadRouter = express.Router();
+
+const uploadDir = path.join(process.cwd(), 'backend', 'uploads');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname);
+    const fileName = `${Date.now()}${extension}`;
+
+    cb(null, fileName);
+  },
+});
+
+const upload = multer({
+  storage,
+});
 
 uploadRouter.post(
   '/',
@@ -14,25 +35,20 @@ uploadRouter.post(
   isAdmin,
   upload.single('file'),
   async (req, res) => {
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    });
-    const streamUpload = (req) => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream((error, result) => {
-          if (result) {
-            resolve(result);
-          } else {
-            reject(error);
-          }
-        });
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
+    if (!req.file) {
+      return res.status(400).send({
+        message: 'No se seleccionó ninguna imagen',
       });
-    };
-    const result = await streamUpload(req);
-    res.send(result);
+    }
+
+    const imageUrl = `/uploads/${req.file.filename}`;
+
+    res.send({
+      url: imageUrl,
+      secure_url: imageUrl,
+      filename: req.file.filename,
+    });
   }
 );
+
 export default uploadRouter;
