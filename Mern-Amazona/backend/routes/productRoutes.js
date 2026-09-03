@@ -34,6 +34,65 @@ productRouter.get('/categories', async (req, res) => {
 });
 
 // =====================================================
+// BUSCAR Y FILTRAR PRODUCTOS
+// =====================================================
+productRouter.get('/search', async (req, res) => {
+  try {
+    const pageSize = 9;
+    const page = Number(req.query.page) || 1;
+    const query = req.query.query || 'all';
+    const category = req.query.category || 'all';
+    const price = req.query.price || 'all';
+    const rating = req.query.rating || 'all';
+    const order = req.query.order || 'newest';
+
+    const filter = {};
+
+    if (query !== 'all' && query.trim() !== '') {
+      const escapedQuery = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.name = { $regex: escapedQuery, $options: 'i' };
+    }
+
+    if (category !== 'all') {
+      filter.category = category;
+    }
+
+    if (price !== 'all') {
+      const [min, max] = price.split('-').map(Number);
+      filter.price = { $gte: min, $lte: max };
+    }
+
+    if (rating !== 'all') {
+      filter.rating = { $gte: Number(rating) };
+    }
+
+    let sort = {};
+    if (order === 'lowest') sort = { price: 1 };
+    else if (order === 'highest') sort = { price: -1 };
+    else if (order === 'toprated') sort = { rating: -1 };
+    else sort = { createdAt: -1, _id: -1 };
+
+    const countProducts = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .sort(sort)
+      .skip(pageSize * (page - 1))
+      .limit(pageSize);
+
+    res.send({
+      products,
+      page,
+      pages: Math.ceil(countProducts / pageSize),
+      countProducts,
+    });
+  } catch (error) {
+    console.error('Error al buscar productos:', error);
+    res.status(500).send({
+      message: error.message,
+    });
+  }
+});
+
+// =====================================================
 // BUSCAR PRODUCTO POR SLUG
 // =====================================================
 productRouter.get('/slug/:slug', async (req, res) => {
@@ -213,7 +272,6 @@ productRouter.post(
     try {
       const { rating, comment } = req.body;
 
-      // Buscar producto
       const product = await Product.findById(
         req.params.id
       );
@@ -224,12 +282,10 @@ productRouter.post(
         });
       }
 
-      // Verificar que existan las reseñas
       if (!product.reviews) {
         product.reviews = [];
       }
 
-      // Verificar si el usuario ya dejó una reseña
       const alreadyReviewed =
         product.reviews.find(
           (review) =>
@@ -244,7 +300,6 @@ productRouter.post(
         });
       }
 
-      // Crear nueva reseña
       const review = {
         name: req.user.name,
         rating: Number(rating),
@@ -252,14 +307,8 @@ productRouter.post(
         user: req.user._id,
       };
 
-      // Agregar reseña
       product.reviews.push(review);
-
-      // Actualizar cantidad de reseñas
-      product.numReviews =
-        product.reviews.length;
-
-      // Calcular nuevo promedio
+      product.numReviews = product.reviews.length;
       product.rating =
         product.reviews.reduce(
           (sum, review) =>
@@ -267,10 +316,8 @@ productRouter.post(
           0
         ) / product.reviews.length;
 
-      // Guardar producto
       await product.save();
 
-      // Obtener la reseña recién creada
       const newReview =
         product.reviews[
           product.reviews.length - 1
