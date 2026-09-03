@@ -11,7 +11,6 @@ import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import Button from 'react-bootstrap/Button';
 import Product from '../components/Product';
-import LinkContainer from 'react-router-bootstrap/LinkContainer';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -84,14 +83,14 @@ export default function SearchScreen() {
     fetchCategories();
   }, []);
 
-  const getFilterUrl = (filter, skipPathname) => {
+  const getFilterUrl = (filter) => {
     const filterPage = filter.page || page;
     const filterCategory = filter.category || category;
     const filterQuery = filter.query || query;
     const filterRating = filter.rating || rating;
     const filterPrice = filter.price || price;
     const sortOrder = filter.order || order;
-    return `${skipPathname ? '' : '/search?'}category=${encodeURIComponent(filterCategory)}&query=${encodeURIComponent(filterQuery)}&price=${encodeURIComponent(filterPrice)}&rating=${encodeURIComponent(filterRating)}&order=${encodeURIComponent(sortOrder)}&page=${filterPage}`;
+    return `/search?category=${encodeURIComponent(filterCategory)}&query=${encodeURIComponent(filterQuery)}&price=${encodeURIComponent(filterPrice)}&rating=${encodeURIComponent(filterRating)}&order=${encodeURIComponent(sortOrder)}&page=${filterPage}`;
   };
 
   return (
@@ -112,7 +111,7 @@ export default function SearchScreen() {
           <h3>Valoración</h3>
           <ul>
             {ratings.map((r) => <li key={r.name}><Link to={getFilterUrl({ rating: r.rating })} className={`${r.rating}` === `${rating}` ? 'text-bold' : ''}><Rating caption={' y más'} rating={r.rating}></Rating></Link></li>)}
-            <li><Link to={getFilterUrl({ rating: 'all' })} className={rating === 'all' ? 'text-bold' : ''}><Rating caption={' y más'} rating={0}></Rating></Link></li>
+            <li><Link to={getFilterUrl({ rating: 'all' })} className={rating === 'all' ? 'text-bold' : ''}><Rating caption={' y más'} rating={0}></Rating></li>
           </ul>
         </Col>
         <Col md={9}>
@@ -141,9 +140,11 @@ export default function SearchScreen() {
             {products.length === 0 && <MessageBox>No se encontraron productos</MessageBox>}
             <Row>{products.map((product) => <Col sm={6} lg={4} className="mb-3" key={product._id}><Product product={product} /></Col>)}</Row>
             <div>
-              {[...Array(pages).keys()].map((x) => <LinkContainer key={x + 1} className="mx-1" to={getFilterUrl({ page: x + 1 })}>
-                <Button className={Number(page) === x + 1 ? 'text-bold' : ''} variant="light">{x + 1}</Button>
-              </LinkContainer>)}
+              {[...Array(pages).keys()].map((x) => (
+                <Link key={x + 1} className="mx-1" to={getFilterUrl({ page: x + 1 })}>
+                  <Button className={Number(page) === x + 1 ? 'text-bold' : ''} variant="light">{x + 1}</Button>
+                </Link>
+              ))}
             </div>
           </>}
         </Col>
