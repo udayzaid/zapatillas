@@ -111,7 +111,7 @@ export default function SearchScreen() {
           <h3>Valoración</h3>
           <ul>
             {ratings.map((r) => <li key={r.name}><Link to={getFilterUrl({ rating: r.rating })} className={`${r.rating}` === `${rating}` ? 'text-bold' : ''}><Rating caption={' y más'} rating={r.rating}></Rating></Link></li>)}
-            <li><Link to={getFilterUrl({ rating: 'all' })} className={rating === 'all' ? 'text-bold' : ''}><Rating caption={' y más'} rating={0}></Rating></li>
+            <li><Link to={getFilterUrl({ rating: 'all' })} className={rating === 'all' ? 'text-bold' : ''}><Rating caption={' y más'} rating={0}></Rating></Link></li>
           </ul>
         </Col>
         <Col md={9}>
