@@ -11,23 +11,22 @@ import MessageBox from '../components/MessageBox';
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'FETCH_REQUEST':
-      return { ...state, loading: true };
-    case 'FETCH_SUCCESS':
-      return { ...state, products: action.payload, loading: false };
-    case 'FETCH_FAIL':
-      return { ...state, loading: false, error: action.payload };
-    default:
-      return state;
+    case 'FETCH_REQUEST': return { ...state, loading: true };
+    case 'FETCH_SUCCESS': return { ...state, products: action.payload, loading: false };
+    case 'FETCH_FAIL': return { ...state, loading: false, error: action.payload };
+    default: return state;
   }
 };
 
+const styleImages = {
+  Running: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=85',
+  Urbano: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85',
+  Basketball: 'https://images.unsplash.com/photo-1518407613690-d9fc990e795f?auto=format&fit=crop&w=900&q=85',
+  Casual: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900&q=85',
+};
+
 function HomeScreen() {
-  const [{ loading, error, products }, dispatch] = useReducer(reducer, {
-    products: [],
-    loading: true,
-    error: '',
-  });
+  const [{ loading, error, products }, dispatch] = useReducer(reducer, { products: [], loading: true, error: '' });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,67 +41,65 @@ function HomeScreen() {
     fetchData();
   }, []);
 
-  const heroProduct = products[0];
-  const categories = [...new Set(products.map((product) => product.category).filter(Boolean))].slice(0, 4);
+  const heroImage = 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1500&q=90';
+  const categories = ['Running', 'Urbano', 'Basketball', 'Casual'];
 
   return (
     <div className="home-page">
-      <Helmet><title>Tienda de Tenis</title></Helmet>
+      <Helmet><title>Tienda de Tenis | Impulsa tu estilo</title></Helmet>
 
-      {!loading && !error && heroProduct && (
-        <section className="home-hero">
-          <div className="home-hero-copy">
-            <span className="home-kicker">Nueva colección</span>
-            <h1>Muévete.<br />Destaca.</h1>
-            <p>Encuentra zapatillas pensadas para tu ritmo, tu estilo y todos los días que quieres hacer diferentes.</p>
-            <Button as={Link} to="/search">Explorar productos <i className="fas fa-arrow-right ms-2"></i></Button>
+      {!loading && !error && (
+        <section className="home-hero-v2">
+          <img className="home-hero-bg" src={heroImage} alt="Mujer corriendo de noche" />
+          <div className="home-hero-overlay" />
+          <div className="home-hero-copy-v2">
+            <span className="home-kicker">Nueva colección <span>→</span></span>
+            <h1>IMPULSA<br /><em>TU ESTILO</em></h1>
+            <p>Diseñadas para moverte contigo.<br />Comodidad, flow y actitud en cada paso.</p>
+            <div className="hero-actions">
+              <Button as={Link} to="/search">Explorar colección <i className="fas fa-arrow-right ms-2" /></Button>
+              <span className="hero-video-link"><span className="play-circle">▶</span> Ver inspiración</span>
+            </div>
           </div>
-          <img className="home-hero-product" src={heroProduct.image} alt={heroProduct.name} />
+          <div className="hero-social"><span>◎</span><span>♪</span><span>▶</span></div>
+          <div className="hero-dots"><b></b><i></i><i></i></div>
         </section>
       )}
 
       {loading ? <LoadingBox /> : error ? <MessageBox variant="danger">{error}</MessageBox> : (
         <>
-          {categories.length > 0 && (
-            <section className="mb-5">
-              <div className="home-section-head">
-                <div>
-                  <h2>Explora por estilo</h2>
-                  <p>Encuentra el par que va contigo.</p>
-                </div>
-              </div>
-              <Row className="g-3">
-                {categories.map((category) => (
-                  <Col key={category} xs={6} md={3}>
-                    <Link className="category-tile" to={`/search?category=${encodeURIComponent(category)}`}>
-                      <span>{category}</span><i className="fas fa-arrow-right"></i>
-                    </Link>
-                  </Col>
-                ))}
-              </Row>
-            </section>
-          )}
-
-          <section className="home-benefits">
-            <Row className="g-3">
-              <Col md={4}><div className="home-benefit"><i className="fas fa-truck"></i><strong>Envío fácil</strong><span>Recibe tu pedido sin complicaciones.</span></div></Col>
-              <Col md={4}><div className="home-benefit"><i className="fas fa-shield-alt"></i><strong>Compra segura</strong><span>Tu compra siempre bajo control.</span></div></Col>
-              <Col md={4}><div className="home-benefit"><i className="fas fa-headset"></i><strong>Estamos para ayudarte</strong><span>Soporte cuando lo necesites.</span></div></Col>
-            </Row>
-          </section>
-
-          <section>
+          <section className="style-section">
             <div className="home-section-head">
-              <div><h2>Productos destacados</h2><p>Los favoritos para empezar tu próxima aventura.</p></div>
-              <Link className="home-see-all" to="/search">Ver todos <i className="fas fa-arrow-right ms-1"></i></Link>
+              <div><span className="section-kicker">Encuentra tu vibe</span><h2>EXPLORA POR ESTILO</h2></div>
+              <Link className="home-see-all" to="/search">Ver todos <i className="fas fa-arrow-right ms-1" /></Link>
             </div>
-            <Row>
-              {products.map((product) => (
-                <Col key={product.slug} sm={6} md={4} lg={3} className="mb-4">
-                  <Product product={product} />
+            <Row className="g-3">
+              {categories.map((category) => (
+                <Col key={category} xs={6} md={3}>
+                  <Link className="category-tile-v2" to={`/search?category=${encodeURIComponent(category)}`} style={{ backgroundImage: `url(${styleImages[category]})` }}>
+                    <span>{category}</span><i className="fas fa-arrow-right" />
+                  </Link>
                 </Col>
               ))}
             </Row>
+          </section>
+
+          <section className="featured-section">
+            <div className="home-section-head">
+              <div><span className="section-kicker">Lo que está pegando</span><h2>DESTACADOS</h2></div>
+              <Link className="home-see-all" to="/search">Ver todos <i className="fas fa-arrow-right ms-1" /></Link>
+            </div>
+            <Row>
+              {products.map((product) => (
+                <Col key={product.slug} sm={6} md={4} lg={3} className="mb-4"><Product product={product} /></Col>
+              ))}
+            </Row>
+          </section>
+
+          <section className="home-benefits-v2">
+            <div><i className="fas fa-truck" /><strong>Envíos a todo el país</strong><span>Recibe donde estés.</span></div>
+            <div><i className="fas fa-sync-alt" /><strong>Cambios fáciles</strong><span>Compra sin complicaciones.</span></div>
+            <div><i className="fas fa-shield-alt" /><strong>Compra segura</strong><span>Tu compra protegida.</span></div>
           </section>
         </>
       )}
