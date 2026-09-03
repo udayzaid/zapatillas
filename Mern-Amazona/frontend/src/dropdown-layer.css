@@ -1,0 +1,33 @@
+/* Capa superior para que los menús de usuario y administración
+   siempre queden por encima del hero y de cualquier imagen. */
+header .navbar {
+  position: relative;
+  z-index: 3000;
+}
+
+header .navbar-collapse,
+header .navbar-nav,
+header .dropdown {
+  position: relative;
+  z-index: 3001;
+}
+
+header .dropdown-menu {
+  position: absolute;
+  z-index: 4000 !important;
+}
+
+/* El contenido visual de la página queda debajo de la navegación. */
+main {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero-v2 {
+  z-index: 0;
+}
+
+/* El menú lateral sigue pudiendo abrirse por encima de la página. */
+.side-navbar {
+  z-index: 5000;
+}
