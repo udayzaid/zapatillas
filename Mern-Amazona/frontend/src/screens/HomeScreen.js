@@ -45,12 +45,24 @@ const heroSlides = [
   },
 ];
 
-const styleImages = {
-  Running: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=85',
-  Urbano: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85',
-  Basketball: 'https://images.unsplash.com/photo-1518407613690-d9fc990e795f?auto=format&fit=crop&w=900&q=85',
-  Casual: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900&q=85',
-};
+const styleCards = [
+  {
+    label: 'Correr',
+    image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    label: 'Urbano',
+    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    label: 'Baloncesto',
+    image: 'https://images.unsplash.com/photo-1518407613690-d9fc990e795f?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    label: 'Casual',
+    image: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900&q=85',
+  },
+];
 
 function HomeScreen() {
   const [{ loading, error, products }, dispatch] = useReducer(reducer, { products: [], loading: true, error: '' });
@@ -76,7 +88,6 @@ function HomeScreen() {
     return () => clearInterval(timer);
   }, []);
 
-  const categories = ['Running', 'Urbano', 'Basketball', 'Casual'];
   const slide = heroSlides[activeSlide];
 
   return (
@@ -116,15 +127,14 @@ function HomeScreen() {
         <>
           <section className="style-section">
             <div className="home-section-head">
-              <div><span className="section-kicker">Encuentra tu vibe</span><h2>EXPLORA POR ESTILO</h2></div>
+              <div><span className="section-kicker">Encuentra tu estilo</span><h2>EXPLORA POR ESTILO</h2></div>
               <Link className="home-see-all" to="/search">Ver todos <i className="fas fa-arrow-right ms-1" /></Link>
             </div>
             <Row className="g-3">
-              {categories.map((category) => (
-                <Col key={category} xs={6} md={3}>
-                  <Link className="category-tile-v2" to="/search" style={{ backgroundImage: `url(${styleImages[category]})` }}>
-                    <span>{category === 'Running' ? 'Running' : category === 'Urbano' ? 'Urbano' : category === 'Basketball' ? 'Baloncesto' : 'Casual'}</span>
-                    <i className="fas fa-arrow-right" />
+              {styleCards.map((card) => (
+                <Col key={card.label} xs={6} md={3}>
+                  <Link className="category-tile-v2" to="/search" style={{ backgroundImage: `url(${card.image})` }}>
+                    <span>{card.label}</span><i className="fas fa-arrow-right" />
                   </Link>
                 </Col>
               ))}
