@@ -73,7 +73,7 @@ export default function ProductEditScreen() {
         setSlug(data.slug);
         setPrice(data.price);
         setImage(data.image);
-        setImages(data.images);
+        setImages(data.images || []);
         setCategory(data.category);
         setCountInStock(data.countInStock);
         setBrand(data.brand);
