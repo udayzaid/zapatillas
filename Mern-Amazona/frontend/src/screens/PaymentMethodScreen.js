@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -32,10 +31,7 @@ export default function PaymentMethodScreen() {
     <div>
       <CheckoutSteps step1 step2 step3></CheckoutSteps>
       <div className="container small-container">
-        <Helmet>
-          <title>Payment Method</title>
-        </Helmet>
-        <h1 className="my-3">Payment Method</h1>
+        <h1 className="my-3">Método de pago</h1>
         <Form onSubmit={submitHandler}>
           <div className="mb-3">
             <Form.Check
@@ -58,7 +54,7 @@ export default function PaymentMethodScreen() {
             />
           </div>
           <div className="mb-3">
-            <Button type="submit">Continue</Button>
+            <Button type="submit">Continuar</Button>
           </div>
         </Form>
       </div>
