@@ -13,13 +13,13 @@ import { getError } from '../utils';
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
-      return { ...state, loading: true };
+      return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
       return {
         ...state,
-        products: action.payload.products,
+        products: action.payload.products || [],
         page: action.payload.page,
-        pages: action.payload.pages,
+        pages: action.payload.pages || 0,
         loading: false,
       };
     case 'FETCH_FAIL':
@@ -67,6 +67,8 @@ export default function ProductListScreen() {
   ] = useReducer(reducer, {
     loading: true,
     error: '',
+    products: [],
+    pages: 0,
   });
 
   const navigate = useNavigate();
@@ -80,12 +82,15 @@ export default function ProductListScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        dispatch({ type: 'FETCH_REQUEST' });
         const { data } = await axios.get(`/api/products/admin?page=${page}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
 
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
-      } catch (err) {}
+      } catch (err) {
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
+      }
     };
 
     if (successDelete) {
@@ -121,6 +126,7 @@ export default function ProductListScreen() {
   const deleteHandler = async (product) => {
     if (window.confirm('Are you sure to delete?')) {
       try {
+        dispatch({ type: 'DELETE_REQUEST' });
         await axios.delete(`/api/products/${product._id}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
