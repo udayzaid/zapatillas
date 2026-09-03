@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import axios from 'axios';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -18,6 +18,33 @@ const reducer = (state, action) => {
   }
 };
 
+const heroSlides = [
+  {
+    image: 'https://images.unsplash.com/photo-1706459418431-f68031d1b006?auto=format&fit=crop&w=1800&q=88',
+    alt: 'Mujer corriendo de noche por la ciudad',
+    kicker: 'Nueva colección',
+    title: 'IMPULSA',
+    accent: 'TU ESTILO',
+    text: 'Muévete con actitud. Comodidad, flow y energía en cada paso.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1726195221456-7e104a23bbff?auto=format&fit=crop&w=1800&q=88',
+    alt: 'Mujer corriendo en una pista de noche',
+    kicker: 'Activa tu ritmo',
+    title: 'CORRE',
+    accent: 'SIN LÍMITES',
+    text: 'Encuentra tu ritmo y haz que cada recorrido cuente.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1759169523010-b67a2cb2f1fe?auto=format&fit=crop&w=1800&q=88',
+    alt: 'Corredor en una carrera urbana',
+    kicker: 'Tu próximo desafío',
+    title: 'LLEGA',
+    accent: 'MÁS LEJOS',
+    text: 'Diseño, comodidad y energía para acompañarte.',
+  },
+];
+
 const styleImages = {
   Running: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=85',
   Urbano: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85',
@@ -27,6 +54,7 @@ const styleImages = {
 
 function HomeScreen() {
   const [{ loading, error, products }, dispatch] = useReducer(reducer, { products: [], loading: true, error: '' });
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,8 +69,15 @@ function HomeScreen() {
     fetchData();
   }, []);
 
-  const heroImage = 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1500&q=90';
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
+
   const categories = ['Running', 'Urbano', 'Basketball', 'Casual'];
+  const slide = heroSlides[activeSlide];
 
   return (
     <div className="home-page">
@@ -50,19 +85,30 @@ function HomeScreen() {
 
       {!loading && !error && (
         <section className="home-hero-v2">
-          <img className="home-hero-bg" src={heroImage} alt="Mujer corriendo de noche" />
+          {heroSlides.map((item, index) => (
+            <img
+              key={item.image}
+              className={`home-hero-bg ${index === activeSlide ? 'is-active' : ''}`}
+              src={item.image}
+              alt={item.alt}
+            />
+          ))}
           <div className="home-hero-overlay" />
-          <div className="home-hero-copy-v2">
-            <span className="home-kicker">Nueva colección <span>→</span></span>
-            <h1>IMPULSA<br /><em>TU ESTILO</em></h1>
-            <p>Diseñadas para moverte contigo.<br />Comodidad, flow y actitud en cada paso.</p>
+          <div className="home-hero-copy-v2 hero-content-animated" key={activeSlide}>
+            <span className="home-kicker">{slide.kicker} <span>→</span></span>
+            <h1>{slide.title}<br /><em>{slide.accent}</em></h1>
+            <p>{slide.text}</p>
             <div className="hero-actions">
               <Button as={Link} to="/search">Explorar colección <i className="fas fa-arrow-right ms-2" /></Button>
-              <span className="hero-video-link"><span className="play-circle">▶</span> Ver inspiración</span>
+              <Link className="hero-video-link" to="/search"><span className="play-circle">▶</span> Ver inspiración</Link>
             </div>
           </div>
-          <div className="hero-social"><span>◎</span><span>♪</span><span>▶</span></div>
-          <div className="hero-dots"><b></b><i></i><i></i></div>
+          <div className="hero-social" aria-label="Redes sociales"><span>◎</span><span>♪</span><span>▶</span></div>
+          <div className="hero-dots">
+            {heroSlides.map((_, index) => (
+              <button key={index} type="button" className={index === activeSlide ? 'active' : ''} onClick={() => setActiveSlide(index)} aria-label={`Ir a la diapositiva ${index + 1}`} />
+            ))}
+          </div>
         </section>
       )}
 
@@ -76,8 +122,9 @@ function HomeScreen() {
             <Row className="g-3">
               {categories.map((category) => (
                 <Col key={category} xs={6} md={3}>
-                  <Link className="category-tile-v2" to={`/search?category=${encodeURIComponent(category)}`} style={{ backgroundImage: `url(${styleImages[category]})` }}>
-                    <span>{category}</span><i className="fas fa-arrow-right" />
+                  <Link className="category-tile-v2" to="/search" style={{ backgroundImage: `url(${styleImages[category]})` }}>
+                    <span>{category === 'Running' ? 'Running' : category === 'Urbano' ? 'Urbano' : category === 'Basketball' ? 'Baloncesto' : 'Casual'}</span>
+                    <i className="fas fa-arrow-right" />
                   </Link>
                 </Col>
               ))}
