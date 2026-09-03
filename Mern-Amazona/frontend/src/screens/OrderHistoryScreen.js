@@ -29,14 +29,15 @@ export default function OrderHistoryScreen() {
   const [{ loading, error, orders }, dispatch] = useReducer(reducer, {
     loading: true,
     error: '',
+    orders: [],
   });
+
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
       try {
         const { data } = await axios.get(
           `/api/orders/mine`,
-
           { headers: { Authorization: `Bearer ${userInfo.token}` } }
         );
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
@@ -49,6 +50,7 @@ export default function OrderHistoryScreen() {
     };
     fetchData();
   }, [userInfo]);
+
   return (
     <div>
       <Helmet>
@@ -76,11 +78,15 @@ export default function OrderHistoryScreen() {
             {orders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id}</td>
-                <td>{order.createdAt.substring(0, 10)}</td>
-                <td>{order.totalPrice.toFixed(2)}</td>
-                <td>{order.isPaid ? order.paidAt.substring(0, 10) : 'No'}</td>
+                <td>{order.createdAt ? order.createdAt.substring(0, 10) : '-'}</td>
+                <td>{order.totalPrice !== undefined ? order.totalPrice.toFixed(2) : '0.00'}</td>
                 <td>
-                  {order.isDelivered
+                  {order.isPaid && order.paidAt
+                    ? order.paidAt.substring(0, 10)
+                    : 'No'}
+                </td>
+                <td>
+                  {order.isDelivered && order.deliveredAt
                     ? order.deliveredAt.substring(0, 10)
                     : 'No'}
                 </td>
